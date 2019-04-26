@@ -8,6 +8,10 @@ var width = 480;
 var height = 270;
 var background;
 
+var delay = 10; // 제한 시간(초)
+var timer;
+var clock = delay;
+
 var cur = 0;// 현재 문제 번호
 // var answer; // 문제의 정답
 var select; // 사용자가 누른 정답
@@ -40,7 +44,7 @@ window.onload = function() {
   context = canvas.getContext('2d');
   // audio = new Audio('resource/Creepy-music-box-twisted-lullaby.mp3');
   // audio.play();
-  background = 'resource/background.jpg';
+  background = 'resource/backimg.jpg';
   canvas.style.background = 'url('+background+')';
   canvas.style.backgroundSize = 'cover';
 
@@ -96,8 +100,25 @@ function drawQuestion() {
   context.font = 'bold 20pt "맑은 고딕"';
   context.fillStyle = 'rgba(255, 255, 255, 1)';
   context.fillText(str, 30, 30);
-
+  document.all.timeLeft.innerHTML=clock;
+  hideQuestion();
 }
+
+function hideQuestion(){
+  // 시간 제한
+  if (clock>0) {
+    document.all.timeLeft.innerHTML=clock;
+    clock--;
+    timer=setTimeout("hideQuestion()",1000);
+  } else {
+    clearTimeout(timer);
+    clock=delay;
+    cur++;
+    context.clearRect(0, 0, 480, 30);
+    drawQuestion();
+  }
+}
+
 
 function checkAnswer(select) {
   if(answer[cur] == select) {
