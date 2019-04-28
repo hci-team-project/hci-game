@@ -3,7 +3,6 @@ var mouseX = 150; // 쥐 좌표
 var mouseY = 120;
 var context;
 var mouseImage = 'resource/mouse.png';
-var audio;
 var width = 480;
 var height = 270;
 var background;
@@ -13,9 +12,7 @@ var timer;
 var clock = delay;
 
 var cur = 0;// 현재 문제 번호
-// var answer; // 문제의 정답
 var select; // 사용자가 누른 정답
-
 var question = [
   '1번 문제',
   '2번 문제',
@@ -39,17 +36,14 @@ var answer = [
   3번 좌표    (260, 120)
 **********************/
 
+var bgm;
+var ticking;
+
+var start = false;
+
 window.onload = function() {
   canvas = document.getElementById('canvas');
   context = canvas.getContext('2d');
-  // audio = new Audio('resource/Creepy-music-box-twisted-lullaby.mp3');
-  // audio.play();
-  background = 'resource/backimg.jpg';
-  canvas.style.background = 'url('+background+')';
-  canvas.style.backgroundSize = 'cover';
-
-  drawMouse();
-  drawQuestion();
 
   canvas.addEventListener('click', function(e) {
     // 클릭한 좌표 알아내기
@@ -84,6 +78,35 @@ window.onload = function() {
   });
 }
 
+function startBtnClick() {
+  if(!start) {
+      start = true;
+      init();
+  }
+}
+
+function init() {
+  // 초기화
+
+  // 배경음악
+  bgm = new Audio('resource/creepybgm.mp3');
+  bgm.oncanplaythrough = function() {
+    bgm.play();
+  }
+
+  // 시계
+  ticking = new Audio('resource/ticking.mp3');
+
+  // 배경 이미지
+  background = 'resource/backimg.jpg';
+  canvas.style.background = 'url('+background+')';
+  canvas.style.backgroundSize = 'cover';
+
+  drawMouse();
+  drawQuestion();
+
+}
+
 function drawMouse() {
   // 쥐 그리는 함수
   var image = new Image();
@@ -100,16 +123,30 @@ function drawQuestion() {
   context.font = 'bold 20pt "맑은 고딕"';
   context.fillStyle = 'rgba(255, 255, 255, 1)';
   context.fillText(str, 30, 30);
-  document.all.timeLeft.innerHTML=clock;
-  hideQuestion();
+  // document.all.timeLeft.innerHTML=clock;
+
+  // hideQuestion();
+
+  // 10초 세기 시작
+  timer = setTimeout('timeover()', 10000);
+  ticking.play();
 }
 
-function hideQuestion(){
+function timeover() {
+  // 시간 긑나벌임
+  console.log('타임 오버');
+  ticking.pause();
+  clearTimeout(timer);
+  select = 0;
+  checkAnswer(select);
+}
+
+function hideQuestion() {
   // 시간 제한
-  if (clock>0) {
+  if (clock > 0) {
     document.all.timeLeft.innerHTML=clock;
     clock--;
-    timer=setTimeout("hideQuestion()",1000);
+    timer = setTimeout("hideQuestion()", 1000);
   } else {
     clearTimeout(timer);
     clock=delay;
@@ -121,6 +158,9 @@ function hideQuestion(){
 
 
 function checkAnswer(select) {
+  ticking.pause();
+  clearTimeout(timer);
+
   if(answer[cur] == select) {
     // 정답
   }
